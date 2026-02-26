@@ -1,7 +1,7 @@
 Package: parati
 Type: Package
 Title: parati-Patental Allele Transmission Inferences
-Version: 0.99.0
+Version: 0.99.1
 Authors@R: 
     person("Jinyi","Che", email = "chejinyi777@gmail.com", role = c("aut", "cre"))
 Description: 
@@ -13,6 +13,7 @@ Encoding: UTF-8
 RoxygenNote: 7.3.3
 Imports: 
     data.table,
+    R.utils,
     stringr,
     dplyr,
     optparse,
