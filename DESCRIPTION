@@ -1,7 +1,7 @@
 Package: parati
 Type: Package
 Title: parati-Patental Allele Transmission Inferences
-Version: 0.99.4
+Version: 0.99.5
 Authors@R: 
     person("Jinyi","Che", email = "chejinyi777@gmail.com", role = c("aut", "cre"))
 Description: 
