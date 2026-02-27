@@ -15,6 +15,7 @@ opt <- parse_args(OptionParser(option_list = option_list))
 
 library(parati)
 
+/dontrun{
 parati_run(
   geno_file = opt$geno,
   fam_file  = opt$family,
@@ -24,3 +25,4 @@ parati_run(
   plink_path= if(opt$makebed) opt$plink_path else NULL,
   write_files=TRUE
 )
+}

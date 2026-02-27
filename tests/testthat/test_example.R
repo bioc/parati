@@ -2,6 +2,9 @@ library(testthat)
 library(parati)
 
 test_that("minimal parati run works", {
+
+  skip_on_bioc()
+
   fam <- system.file("extdata", "Toy_FamilyIndexTable.xlsx", package = "parati")
   vcf <- system.file("extdata", "Toy_TrioGenotype.vcf.gz", package = "parati")
 

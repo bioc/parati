@@ -15,13 +15,15 @@ read_vcf_by_chr <- function(vcf_file, chr) {
   return(vcf_chr)
 }
 
-#' Convert VCF data.table to vcfR object
+#' Write VCF data.table to file.
 #'
-#' Converts a data.table representing VCF rows into a vcfR object.
+#' Write a data.table representing VCF rows into a VCF file.
 #'
 #' @param df data.table containing VCF rows
 #' @param file output file path
-#' @return NULL
+#'
+#' @return
+#'Invisibly returns \code{NULL}. The VCF file is written to \code{file}.
 #' @export
 write_vcf_dt <- function(df, file) {
   requireNamespace("data.table")
@@ -34,11 +36,15 @@ write_vcf_dt <- function(df, file) {
 
 #' Convert data.table to vcfR object
 #'
-#' Converts a data.table representing VCF rows into a vcfR object.
+#' Converts a data.table representing VCF rows into an object of class
+#' \code{vcfR} object.
 #'
 #' @param df data.table containing VCF rows
 #' @param meta list of meta information for VCF
-#' @return vcfR object
+#'
+#' @return
+#' An object of class \code{vcfR} object
+#'
 #' @export
 vcf_dt_to_vcfR <- function(df, meta) {
   requireNamespace("vcfR")
@@ -49,11 +55,14 @@ vcf_dt_to_vcfR <- function(df, meta) {
 
 #' Write vcfR object to file
 #'
-#' Writes a vcfR object to a VCF file.
+#' Writes a \code{vcfR} object to a VCF file.
 #'
 #' @param vcf_obj vcfR object
 #' @param file output file path
-#' @return NULL
+#'
+#' @return 
+#' Invisibly returns \code{NULL}. The VCF file is written to \code{file}.
+#'
 #' @export
 write_vcf_obj <- function(vcf_obj, file) {
   requireNamespace("vcfR")

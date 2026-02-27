@@ -2,7 +2,7 @@
 % Please edit documentation in R/io_vcf.R
 \name{write_vcf_dt}
 \alias{write_vcf_dt}
-\title{Convert VCF data.table to vcfR object}
+\title{Write VCF data.table to file.}
 \usage{
 write_vcf_dt(df, file)
 }
@@ -11,6 +11,9 @@ write_vcf_dt(df, file)
 
 \item{file}{output file path}
 }
+\value{
+Invisibly returns \code{NULL}. The VCF file is written to \code{file}.
+}
 \description{
-Converts a data.table representing VCF rows into a vcfR object.
+Write a data.table representing VCF rows into a VCF file.
 }

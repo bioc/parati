@@ -12,8 +12,9 @@ vcf_dt_to_vcfR(df, meta)
 \item{meta}{list of meta information for VCF}
 }
 \value{
-vcfR object
+An object of class \code{vcfR} object
 }
 \description{
-Converts a data.table representing VCF rows into a vcfR object.
+Converts a data.table representing VCF rows into an object of class
+\code{vcfR} object.
 }

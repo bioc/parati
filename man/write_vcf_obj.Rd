@@ -11,6 +11,9 @@ write_vcf_obj(vcf_obj, file)
 
 \item{file}{output file path}
 }
+\value{
+Invisibly returns \code{NULL}. The VCF file is written to \code{file}.
+}
 \description{
-Writes a vcfR object to a VCF file.
+Writes a \code{vcfR} object to a VCF file.
 }
