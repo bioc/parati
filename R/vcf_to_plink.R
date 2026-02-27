@@ -9,7 +9,10 @@
 #' @param out_dir character, output directory path
 #' @param chr chromosome identifier
 #' @param plink_path character, path to PLINK executable
-#' @return NULL
+#'
+#' @return
+#' Invisibly returns \code{NULL}. The main effect of the function is writing PLINK files to the specified `out_dir`.
+#'
 #' @export
 vcf_to_plink <- function(vcf_trans, vcf_nontrans, out_dir, chr, plink_path) {
   message("vcf_to_plink not implemented yet")

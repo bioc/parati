@@ -17,6 +17,9 @@ vcf_to_plink(vcf_trans, vcf_nontrans, out_dir, chr, plink_path)
 
 \item{plink_path}{character, path to PLINK executable}
 }
+\value{
+Invisibly returns \code{NULL}. The main effect of the function is writing PLINK files to the specified `out_dir`.
+}
 \description{
 Export VCF to PLINK
 }
