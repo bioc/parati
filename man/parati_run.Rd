@@ -44,6 +44,7 @@ out_dir <- file.path(tempdir(), "parati_example")
 dir.create(out_dir, showWarnings = FALSE)
 
 # Run parati workflow
+\dontrun{
 res <- parati_run(
   geno_file = vcf_file,
   fam_file = fam_file,
@@ -51,11 +52,14 @@ res <- parati_run(
   chr = 1,
   hap_length = 500000
 )
+}
 
 # Explore results
+\dontrun{
 head(res$vcf_trans)
 head(res$vcf_nontrans)
 head(res$sim_perc_summary)
+}
 }
 \seealso{
 \code{\link{haplotype_infer}}
