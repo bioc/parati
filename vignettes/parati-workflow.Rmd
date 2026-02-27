@@ -55,6 +55,7 @@ dir.create(out_dir, showWarnings = FALSE)
 
 ## Run PARATI (minimal example)
 ```r
+\donttest{
 res <- parati_run(
     geno_file = vcf_file,
     fam_file = fam_file,
@@ -62,6 +63,7 @@ res <- parati_run(
     chr = 1,
     hap_length = 500000
 )
+}
 
 ## Explore Results
 ```r
