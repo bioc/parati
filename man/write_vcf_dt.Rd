@@ -2,18 +2,26 @@
 % Please edit documentation in R/io_vcf.R
 \name{write_vcf_dt}
 \alias{write_vcf_dt}
-\title{Write VCF data.table to file.}
+\title{Write VCF data.table to file}
 \usage{
 write_vcf_dt(df, file)
 }
 \arguments{
-\item{df}{data.table containing VCF rows}
+\item{df}{A `data.table` containing VCF rows.}
 
-\item{file}{output file path}
+\item{file}{Character scalar, output file path.}
 }
 \value{
-Invisibly returns \code{NULL}. The VCF file is written to \code{file}.
+`NULL`, invisibly. The VCF file is written to `file`.
 }
 \description{
-Write a data.table representing VCF rows into a VCF file.
+Writes a `data.table` representing VCF rows to a VCF file.
+}
+\examples{
+vcf_file <- system.file("extdata", "Toy_TrioGenotype.vcf.gz", package = "parati")
+vcf_dt <- read_vcf_by_chr(vcf_file, chr = 1)
+outfile <- tempfile(fileext = ".vcf")
+write_vcf_dt(vcf_dt, outfile)
+file.exists(outfile)
+
 }

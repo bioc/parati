@@ -7,13 +7,22 @@
 write_vcf_obj(vcf_obj, file)
 }
 \arguments{
-\item{vcf_obj}{vcfR object}
+\item{vcf_obj}{A `vcfR` object.}
 
-\item{file}{output file path}
+\item{file}{Character scalar, output file path.}
 }
 \value{
-Invisibly returns \code{NULL}. The VCF file is written to \code{file}.
+`NULL`, invisibly. The VCF file is written to `file`.
 }
 \description{
-Writes a \code{vcfR} object to a VCF file.
+Writes a `vcfR` object to a VCF file.
+}
+\examples{
+vcf_file <- system.file("extdata", "Toy_TrioGenotype.vcf.gz", package = "parati")
+vcf_dt <- read_vcf_by_chr(vcf_file, chr = 1)
+vcf_obj <- vcf_dt_to_vcfR(vcf_dt)
+outfile <- tempfile(fileext = ".vcf")
+write_vcf_obj(vcf_obj, outfile)
+file.exists(outfile)
+
 }

@@ -7,13 +7,19 @@
 read_vcf_by_chr(vcf_file, chr)
 }
 \arguments{
-\item{vcf_file}{character VCF file path}
+\item{vcf_file}{Character scalar, path to a VCF/VCF.GZ file.}
 
-\item{chr}{character/integer Chromosome}
+\item{chr}{Character or integer chromosome identifier.}
 }
 \value{
-data.table
+A `data.table` containing VCF rows for the selected chromosome.
 }
 \description{
-Read VCF by chromosome
+Reads a VCF file and subsets variants to a given chromosome.
+}
+\examples{
+vcf_file <- system.file("extdata", "Toy_TrioGenotype.vcf.gz", package = "parati")
+vcf_chr <- read_vcf_by_chr(vcf_file, chr = 1)
+dim(vcf_chr)
+
 }

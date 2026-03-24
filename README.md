@@ -1,115 +1,72 @@
+```
 # parati
 
-**parati** is an R package and command-line tool for **parent-of-origin–aware haplotype inference in trio genotype data**.
-It infers transmitted and non-transmitted parental haplotypes along autosomes using phased windows and supports downstream export to PLINK formats.
+**parati** is an R package for inferring maternal and paternal transmitted and
+non-transmitted alleles from phased trio genotype data.
 
-PARATI is designed for large-scale trio datasets and can be run directly from the command line or integrated into R workflows.
+The package is designed for trio-based SNP-level analyses, including studies of
+genetic nurture and transgenerational effects. It integrates with Bioconductor
+workflows by supporting both VCF file paths and `VariantAnnotation::VCF`
+objects as input.
 
 ---
 
 ## Features
 
-* Trio-aware haplotype inference (father / mother → child)
-* Sliding-window–based haplotype construction
-* Explicit separation of transmitted vs non-transmitted alleles
-* Supports large compressed VCF files (`.vcf.gz`)
-* Optional export to PLINK (`.bed/.bim/.fam`)
-* Designed for reproducible and automated pipelines
+- Trio-aware inference of transmitted and non-transmitted parental alleles
+- Support for phased VCF genotype data
+- Input as either:
+  - a VCF/VCF.GZ file path
+  - a `VariantAnnotation::VCF` object
+- Returns R objects for downstream analysis rather than writing files by default
+- Includes toy example data for testing and demonstration
 
 ---
 
 ## Installation
 
-### Requirements
-
-* **R ≥ 4.1**
-* Operating system: Linux or macOS
-* External software:
-
-  * **PLINK ≥ 1.9** (required)
-
-### Required R packages
-
-* `data.table (>= 1.16.0)`
-* `dplyr (>= 1.1.4)`
-* `stringr (>= 1.5.1)`
-* `optparse (>= 1.7.5)`
-* `openxlsx (>= 4.2.7.1)`
-* `vcfR (>= 1.15.0)`
-* `methods`
-
----
-
-#### Install from GitHub (development version)
+### Bioconductor
 
 ```r
-# install.packages("devtools")
-devtools::install_github("newche/parati")
+if (!requireNamespace("BiocManager", quietly = TRUE)) {
+    install.packages("BiocManager")
+}
+BiocManager::install("parati")
 ```
 
-Or clone manually:
+### Development version
 
-```bash
-git clone https://github.com/newche/parati.git
-cd parati
-
-#or
-R CMD INSTALL parati_0.99.0.tar.gz
+```
+# install.packages("remotes")
+remotes::install_github("newche/parati")
 ```
 
----
+------
 
 ## Input data
 
-PARATI requires **two input files**.
+`parati` requires two inputs:
 
----
+1. Trio genotype data in VCF format
+2. A family index table describing family membership and roles
+
+------
 
 ### 1. Trio genotype VCF
 
-**Format**
+Supported input types:
 
-* Compressed VCF: `.vcf.gz`
-* Standard VCF columns:
+- a path to a phased VCF/VCF.GZ file
+- a `VariantAnnotation::VCF` object
 
-  ```
-  CHROM, POS, ID, REF, ALT, QUAL, FILTER, INFO, FORMAT
-  ```
-* Followed by **sample columns (individual IDs)**
+Expected content:
 
-**Content requirements**
+- standard VCF fixed columns
+- genotype columns whose sample IDs match the family table
+- autosomal biallelic SNPs are recommended
 
-* Each family must contain:
-
-  * Biological father
-  * Biological mother
-  * Biological child
-* Autosomes only
-* Biallelic SNPs only
-
-**Chromosome handling**
-
-* The VCF **does not need to be chromosome-specific**
-* PARATI processes **one chromosome at a time internally**, based on the `--chr` argument
-
-**Sample ID rules (important)**
-
-* Sample IDs in the VCF **must exactly match** the `IndividualID` column in the family index
-* Matching is **case-sensitive**
-* **Do not use underscores `_` in sample IDs**, to avoid parsing issues
-
----
-
-#### Recommended quality control (before running PARATI)
-
-Although not enforced, the following QC steps are strongly recommended:
-
-* Filter variants by:
-
-  * Call rate
-  * Minor allele frequency (MAF)
-* Remove Mendelian inconsistencies within trios
-* Restrict to autosomal biallelic SNPs
+Sample IDs in the VCF must exactly match the `IndividualID` column of the
+ family table.
 
 ---
 
@@ -131,20 +88,23 @@ Below is a partial example from the simulated testing dataset
 ...
 ```
 
----
+------
 
-### 2. Family index file
+### 2. Family index table
 
-**Format**
+The family table must contain the following columns:
 
-* Excel file: `.xlsx`
-* Must contain **exactly three required columns**
+| Column name  | Description                                          |
+| ------------ | ---------------------------------------------------- |
+| FamilyIndex  | Family identifier                                    |
+| IndividualID | Sample identifier matching the VCF sample name       |
+| Role         | Family role: `F` (father), `M` (mother), `C` (child) |
 
-| Column name    | Description                                          |
-| -------------- | ---------------------------------------------------- |
-| `FamilyIndex`  | Family ID (integer or character, e.g. `1`, `FAM001`) |
-| `IndividualID` | Individual ID, must match VCF sample name exactly    |
-| `Role`         | Family role: `F` (father), `M` (mother), `C` (child) |
+The family input can be provided as:
+
+- a path to an `.xlsx` file
+- a `data.frame`
+- a `data.table`
 
 ---
 
@@ -166,81 +126,86 @@ FamilyIndex  IndividualID  Role
 
 ---
 
-## Command-line usage
+------
 
-```bash
-Rscript inst/scripts/parati.R [options]
+## Example
+
+```
+library(parati)
+
+vcf_file <- system.file("extdata", "Toy_TrioGenotype.vcf.gz", package = "parati")
+fam_file <- system.file("extdata", "Toy_FamilyIndexTable.xlsx", package = "parati")
+
+res <- parati_run(
+  vcf = vcf_file,
+  fam = fam_file,
+  chr = 1,
+  hap_length = 500000
+)
+
+names(res)
+head(res$vcf_trans, 3)
+head(res$vcf_nontrans, 3)
+head(res$sim_perc_summary, 3)
 ```
 
-### Required arguments
+------
 
-| Option         | Description                        |
-| -------------- | ---------------------------------- |
-| `--geno`       | Trio genotype VCF file (`.vcf.gz`) |
-| `--family`     | Family index Excel file (`.xlsx`)  |
-| `--chr`        | Chromosome number                  |
-| `--out`        | Output directory                   |
-| `--plink_path` | Full path to PLINK executable      |
+## Integration with Bioconductor workflows
 
----
+```
+library(parati)
+library(VariantAnnotation)
 
-### Optional arguments
+vcf_file <- system.file("extdata", "Toy_TrioGenotype.vcf.gz", package = "parati")
+fam_file <- system.file("extdata", "Toy_FamilyIndexTable.xlsx", package = "parati")
 
-| Option       | Default | Description                  |
-| ------------ | ------- | ---------------------------- |
-| `--haplen`   | 500000  | Haplotype window length (bp) |
-| `--savetemp` | FALSE   | Save intermediate files      |
-| `--makebed`  | FALSE   | Export PLINK bed/bim/fam     |
+vcf_obj <- readVcf(vcf_file, genome = "unknown")
 
----
-
-### Example run
-
-```bash
-Rscript inst/scripts/parati.R \
-  --geno Toy_TrioGenotype.vcf.gz \
-  --family Toy_FamilyIndex.xlsx \
-  --chr 1 \
-  --out results_chr1 \
-  --haplen 500000 \
-  --makebed TRUE \
-  --plink_path /usr/local/bin/plink
+res <- parati_run(
+  vcf = vcf_obj,
+  fam = fam_file,
+  chr = 1
+)
 ```
 
----
+------
 
 ## Output
 
-parati generates:
+`parati_run()` returns a named list containing:
 
-* Per-window inferred haplotypes
-* Transmitted and non-transmitted parental alleles
-* Optional PLINK files:
+- `vcf_trans`
+- `vcf_nontrans`
+- `sim_perc_summary`
 
-  * `.bed`
-  * `.bim`
-  * `.fam`
+These are returned as R objects for further analysis.
 
-Output files are organized by chromosome and haplotype window.
+------
 
----
+## Example data
+
+Toy example data are included in:
+
+```
+inst/extdata/
+```
+
+Files:
+
+- `Toy_TrioGenotype.vcf.gz`
+- `Toy_FamilyIndexTable.xlsx`
+
+------
 
 ## License
 
 GPL-3 + file LICENSE
 
----
-
-## Citation
-
-If you use parati in your research, please cite:
-
-> *parati: Parent-of-origin aware haplotype inference for trio genotype data.*
-
----
+------
 
 ## Contact
 
 For questions or issues, please open an issue on GitHub.
 
----
+https://github.com/newche/parati/issues
