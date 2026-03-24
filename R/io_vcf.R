@@ -14,21 +14,7 @@
 #'
 #' @export
 read_vcf_by_chr <- function(vcf_file, chr) {
-  vcf_all <- data.table::fread(
-    file = vcf_file,
-    skip = "#CHROM",
-    sep = "\t",
-    header = TRUE,
-    data.table = TRUE,
-    fill = TRUE
-  )
-
-  if (!"#CHROM" %in% names(vcf_all) && "CHROM" %in% names(vcf_all)) {
-    data.table::setnames(vcf_all, "CHROM", "#CHROM")
-  }
-
-  vcf_chr <- vcf_all[vcf_all[["#CHROM"]] == as.character(chr), ]
-  vcf_chr
+  .parati_fread_vcf(vcf_file, chr = chr)
 }
 
 #' Write VCF data.table to file

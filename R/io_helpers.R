@@ -211,13 +211,13 @@
   cbind(vcf_dt, gt_dt)
 }
 
-# Internal helper: read VCF path or VCF object
-.parati_read_vcf <- function(vcf, chr = NULL) {
-  if (inherits(vcf, "VCF")) {
-    vcf_dt <- .parati_vcf_to_dt(vcf)
-  } else if (is.character(vcf) && length(vcf) == 1L) {
+.parati_fread_vcf <- function(path, chr = NULL) {
+  if (grepl("\\.gz$", path, ignore.case = TRUE)) {
+    tmp <- tempfile(fileext = ".vcf")
+    on.exit(unlink(tmp), add = TRUE)
+    R.utils::gunzip(path, destname = tmp, remove = FALSE, overwrite = TRUE)
     vcf_dt <- data.table::fread(
-      file = vcf,
+      file = tmp,
       skip = "#CHROM",
       sep = "\t",
       header = TRUE,
@@ -225,14 +225,22 @@
       fill = TRUE
     )
   } else {
-    stop("`vcf` must be a file path or a VariantAnnotation::VCF object.")
+    vcf_dt <- data.table::fread(
+      file = path,
+      skip = "#CHROM",
+      sep = "\t",
+      header = TRUE,
+      data.table = TRUE,
+      fill = TRUE
+    )
   }
 
   if (!"#CHROM" %in% names(vcf_dt) && "CHROM" %in% names(vcf_dt)) {
     data.table::setnames(vcf_dt, "CHROM", "#CHROM")
   }
 
-  required_vcf_cols <- c("#CHROM", "POS", "ID", "REF", "ALT", "QUAL", "FILTER", "INFO", "FORMAT")
+  required_vcf_cols <- c("#CHROM", "POS", "ID", "REF", "ALT",
+                         "QUAL", "FILTER", "INFO", "FORMAT")
   if (!all(required_vcf_cols %in% names(vcf_dt))) {
     stop(
       "VCF input is missing required columns: ",
@@ -242,6 +250,22 @@
 
   if (!is.null(chr)) {
     vcf_dt <- vcf_dt[vcf_dt[["#CHROM"]] == as.character(chr), ]
+  }
+
+  vcf_dt
+}
+
+# Internal helper: read VCF path or VCF object
+.parati_read_vcf <- function(vcf, chr = NULL) {
+  if (inherits(vcf, "VCF")) {
+    vcf_dt <- .parati_vcf_to_dt(vcf)
+    if (!is.null(chr)) {
+      vcf_dt <- vcf_dt[vcf_dt[["#CHROM"]] == as.character(chr), ]
+    }
+  } else if (is.character(vcf) && length(vcf) == 1L) {
+    vcf_dt <- .parati_fread_vcf(vcf, chr = chr)
+  } else {
+    stop("`vcf` must be a file path or a VariantAnnotation::VCF object.")
   }
 
   vcf_dt
