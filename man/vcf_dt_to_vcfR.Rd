@@ -22,5 +22,6 @@ vcf_file <- system.file("extdata", "Toy_TrioGenotype.vcf.gz", package = "parati"
 vcf_dt <- read_vcf_by_chr(vcf_file, chr = 1)
 vcf_obj <- vcf_dt_to_vcfR(vcf_dt)
 class(vcf_obj)
+stopifnot(inherits(vcf_obj, "vcfR"))
 
 }

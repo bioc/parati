@@ -24,12 +24,9 @@ A named list containing:
 Given trio genotype data for a single family, infer maternal and paternal
 transmitted and non-transmitted alleles.
 }
-\examples{
-vcf_file <- system.file("extdata", "Toy_TrioGenotype.vcf.gz", package = "parati")
-vcf_dt <- read_vcf_by_chr(vcf_file, chr = 1)
-vcf_sub <- vcf_dt[, c(names(vcf_dt)[1:9], "1-M", "1-P", "1-B"), with = FALSE]
-data.table::setnames(vcf_sub, c("1-M", "1-P", "1-B"), c("M", "P", "B"))
-res <- haplotype_infer(vcf_sub)
-names(res)
-
+\details{
+This function preserves the original PARATI inference semantics:
+- deterministic Mendelian inference for non-triple-heterozygote patterns
+- local haplotype matching for triple-heterozygote sites
+- low-similarity / ambiguous sites are left as missing (".|.")
 }

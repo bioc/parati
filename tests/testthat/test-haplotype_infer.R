@@ -5,7 +5,7 @@ test_that("haplotype_infer returns expected columns", {
   vcf_dt <- parati:::.parati_read_vcf(vcf_file, chr = 1)
 
   # 构造一个 trio
-  vcf_sub <- vcf_dt[, c(names(vcf_dt)[1:9], "1-M", "1-P", "1-B"), with = FALSE]
+  vcf_sub <- vcf_dt[, c(names(vcf_dt)[seq_len(9)], "1-M", "1-P", "1-B"), with = FALSE]
   data.table::setnames(vcf_sub, c("1-M","1-P","1-B"), c("M","P","B"))
 
   res <- parati::haplotype_infer(vcf_sub)

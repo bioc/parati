@@ -21,8 +21,9 @@ Writes a `vcfR` object to a VCF file.
 vcf_file <- system.file("extdata", "Toy_TrioGenotype.vcf.gz", package = "parati")
 vcf_dt <- read_vcf_by_chr(vcf_file, chr = 1)
 vcf_obj <- vcf_dt_to_vcfR(vcf_dt)
+stopifnot(inherits(vcf_obj, "vcfR"))
 outfile <- tempfile(fileext = ".vcf")
 write_vcf_obj(vcf_obj, outfile)
-file.exists(outfile)
+stopifnot(file.exists(outfile))
 
 }

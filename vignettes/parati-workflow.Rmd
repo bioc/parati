@@ -67,7 +67,120 @@ names(res)
 head(res$vcf_trans, 3)
 head(res$vcf_nontrans, 3)
 head(res$sim_perc_summary, 3)
+
 ```
+
+## Export result files
+
+The returned result object can be saved as tabular files or standard VCF files.
+
+```{r eval=FALSE}
+library(vcfR)
+
+# 1. Save tabular outputs
+data.table::fwrite(res$vcf_trans, "transmitted_chr1.csv.gz")
+data.table::fwrite(res$vcf_nontrans, "nontransmitted_chr1.csv.gz")
+data.table::fwrite(res$sim_perc_summary, "sim_perc_summary_chr1.csv.gz")
+
+# 2. Read original VCF metadata
+orig_vcf <- vcfR::read.vcfR(vcf_file, verbose = FALSE)
+meta_lines <- orig_vcf@meta
+
+# 3. Convert returned data.tables to standard VCF objects
+trans_obj <- vcf_dt_to_vcfR(res$vcf_trans, meta = meta_lines)
+nontrans_obj <- vcf_dt_to_vcfR(res$vcf_nontrans, meta = meta_lines)
+
+# 4. Write standard gzipped VCF files
+write_vcf_obj(trans_obj, "transmitted_chr1.vcf.gz")
+write_vcf_obj(nontrans_obj, "nontransmitted_chr1.vcf.gz")
+```
+
+This produces five output files:
+
+- `transmitted_chr1.csv.gz`
+- `nontransmitted_chr1.csv.gz`
+- `sim_perc_summary_chr1.csv.gz`
+- `transmitted_chr1.vcf.gz`
+- `nontransmitted_chr1.vcf.gz`
+
+## Output files and summary columns
+
+The updated PARATI workflow separates output into three logical components:
+
+1. `vcf_trans`
+   Final parental transmitted alleles.
+
+2. `vcf_nontrans`
+   Final parental non-transmitted alleles.
+
+3. `sim_perc_summary`
+   Haplotype-matching evidence and inference diagnostics for sites where
+   mother, father, and child are all heterozygous.
+
+Compared with the original implementation, the transmitted VCF output
+corresponds most closely to the original single-file VCF result. The
+updated workflow additionally provides non-transmitted alleles and a
+separate summary table describing haplotype-based inference evidence.
+
+### Meaning of `sim_perc_summary` columns
+
+The `sim_perc_summary` table contains one row per haplotype comparison
+for each target variant and family. Its columns are:
+
+- `#CHROM`:
+  Chromosome of the target variant.
+
+- `POS`:
+  Genomic position of the target variant.
+
+- `ID`:
+  Variant identifier of the target SNP.
+
+- `pair`:
+  The specific haplotype pair being compared. Each target variant has
+  up to eight comparisons:
+  `B_hap1_vs_M_hap1`, `B_hap1_vs_M_hap2`,
+  `B_hap1_vs_P_hap1`, `B_hap1_vs_P_hap2`,
+  `B_hap2_vs_M_hap1`, `B_hap2_vs_M_hap2`,
+  `B_hap2_vs_P_hap1`, and `B_hap2_vs_P_hap2`.
+
+- `B_hap`:
+  The child haplotype involved in the comparison (`B_hap1` or `B_hap2`).
+
+- `PM_hap`:
+  The parental haplotype involved in the comparison
+  (`M_hap1`, `M_hap2`, `P_hap1`, or `P_hap2`).
+
+- `bpwindow`:
+  The local haplotype-matching window size in base pairs, corresponding
+  to the `hap_length` argument.
+
+- `nSNP_haplotype`:
+  Number of nearby SNPs within the matching window that had complete
+  phased haplotype information and were used in similarity calculation.
+
+- `sim_perc`:
+  Similarity proportion between the child haplotype and the corresponding
+  parental haplotype across the local window.
+
+- `order`:
+  Output row order for the eight pairwise haplotype comparisons.
+  In the current implementation this is the fixed listing order of the
+  eight comparisons, not a rank by similarity.
+
+- `status`:
+  Final inference status for the target variant in that family.
+  Typical values are:
+  `Inferred based on haplotype`,
+  `Ambiguous`,
+  and `Low similarity`.
+
+- `FamilyIndex`:
+  Family identifier from the family index table.
+
+In practice, `vcf_trans` and `vcf_nontrans` are the primary final outputs,
+whereas `sim_perc_summary` is intended for interpretation, quality control,
+and tracing the basis of haplotype-based inference.
 
 ## Integration with Bioconductor VCF workflows
 

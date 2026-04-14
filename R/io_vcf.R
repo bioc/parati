@@ -57,15 +57,32 @@ write_vcf_dt <- function(df, file) {
 #' vcf_dt <- read_vcf_by_chr(vcf_file, chr = 1)
 #' vcf_obj <- vcf_dt_to_vcfR(vcf_dt)
 #' class(vcf_obj)
+#' stopifnot(inherits(vcf_obj, "vcfR"))
+#'
+#' @importClassesFrom vcfR vcfR
 #'
 #' @export
 vcf_dt_to_vcfR <- function(df, meta = character()) {
-  fix_mat <- as.matrix(df[, seq_len(8)])
+  if (!requireNamespace("vcfR", quietly = TRUE)) {
+    stop("Package 'vcfR' is required.")
+  }
+
+  if (!data.table::is.data.table(df)) {
+    df <- data.table::as.data.table(df)
+  }
+
+  if (ncol(df) < 9L) {
+    stop("`df` must contain at least 9 VCF columns.")
+  }
+
+  fix_mat <- as.matrix(df[, seq_len(8), with = FALSE])
   gt_mat <- as.matrix(df[, 9:ncol(df), with = FALSE])
 
   cls <- methods::getClass("vcfR", where = asNamespace("vcfR"))
   methods::new(cls, meta = meta, fix = fix_mat, gt = gt_mat)
 }
+
+
 
 #' Write vcfR object to file
 #'
@@ -80,9 +97,10 @@ vcf_dt_to_vcfR <- function(df, meta = character()) {
 #' vcf_file <- system.file("extdata", "Toy_TrioGenotype.vcf.gz", package = "parati")
 #' vcf_dt <- read_vcf_by_chr(vcf_file, chr = 1)
 #' vcf_obj <- vcf_dt_to_vcfR(vcf_dt)
+#' stopifnot(inherits(vcf_obj, "vcfR"))
 #' outfile <- tempfile(fileext = ".vcf")
 #' write_vcf_obj(vcf_obj, outfile)
-#' file.exists(outfile)
+#' stopifnot(file.exists(outfile))
 #'
 #' @export
 write_vcf_obj <- function(vcf_obj, file) {
