@@ -1,7 +1,7 @@
 Package: parati
 Type: Package
 Title: Parental Allele Transmission Inference for Trio Genotype Data
-Version: 0.99.8
+Version: 1.0.0
 Authors@R: 
     person("Jinyi", "Che", email = "chejinyi777@gmail.com", role = c("aut", "cre"))
 Description:
